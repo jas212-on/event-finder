@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, Users, DollarSign, Image, Type, FileText, Tag, ArrowLeft, Check } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Image, Type, FileText, Tag, ArrowLeft, Check } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { axiosInstance } from './axios';
 
 interface EventFormData {
   title: string;
@@ -63,10 +64,18 @@ const AddEventForm: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
-    console.log('Event Data:', formData);
-    console.log('Image File:', imageFile.file);
+  const handleSubmit = async () => {
+  
+    try {
+      await axiosInstance.post("/add-event" ,{
+        ...formData
+      })
+    } catch (error) {
+      console.log("Error", error)
+    }finally{
+      navigate("/")
+      setIsSubmitted(true);
+    }
     
     setTimeout(() => {
       setIsSubmitted(false);
@@ -136,7 +145,7 @@ const AddEventForm: React.FC = () => {
               </div>
 
               {/* Category and Organizer Row */}
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-1 gap-6">
                 <div>
                   <label className="flex items-center gap-2 text-white font-semibold mb-3 text-lg">
                     <Tag className="w-5 h-5 text-purple-300" />
@@ -155,20 +164,6 @@ const AddEventForm: React.FC = () => {
                   </select>
                 </div>
 
-                <div>
-                  <label className="flex items-center gap-2 text-white font-semibold mb-3 text-lg">
-                    <Users className="w-5 h-5 text-purple-300" />
-                    Organizer
-                  </label>
-                  <input
-                    type="text"
-                    name="organizer"
-                    value={formData.organizer}
-                    onChange={handleChange}
-                    placeholder="Organization or person name"
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
               </div>
 
               {/* Description */}
@@ -235,7 +230,7 @@ const AddEventForm: React.FC = () => {
               </div>
 
               {/* Participants and Price Row */}
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid md:grid-cols-1 gap-6">
                 <div>
                   <label className="flex items-center gap-2 text-white font-semibold mb-3 text-lg">
                     <Users className="w-5 h-5 text-purple-300" />
@@ -252,20 +247,6 @@ const AddEventForm: React.FC = () => {
                   />
                 </div>
 
-                <div>
-                  <label className="flex items-center gap-2 text-white font-semibold mb-3 text-lg">
-                    <DollarSign className="w-5 h-5 text-purple-300" />
-                    Price
-                  </label>
-                  <input
-                    type="text"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    placeholder="e.g. $50 or Free"
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                  />
-                </div>
               </div>
 
               {/* Image Upload */}

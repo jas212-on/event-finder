@@ -11,7 +11,7 @@ function App() {
       <ScrollToTop/>
       <Routes>
         <Route path="/" element={<EventsPage />} />
-        <Route path="/event/details" element={<EventDetailPage />} />
+        <Route path="/event/details/:id" element={<EventDetailPage />} />
         <Route path="/create" element={<AddEventForm/>}/>
       </Routes>
     </Router>

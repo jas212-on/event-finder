@@ -1,42 +1,18 @@
 import React, { useState } from 'react';
 import { Calendar, MapPin, Clock, Users, ArrowLeft, Share2, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useLocation } from "react-router-dom";
 
-interface EventDetail {
-  id: number;
-  title: string;
-  description: string;
-  location: string;
-  date: string;
-  time: string;
-  image: string;
-  category: string;
-  totalParticipants: number;
-  currentParticipants: number;
-  organizer: string;
-  price: string;
-}
 
 const EventDetailPage: React.FC = () => {
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);       
+  const location = useLocation();      
+  const event = location.state?.event;
   
   // Sample event data
-  const event: EventDetail = {
-    id: 1,
-    title: "Summer Music Festival",
-    description: "Join us for an unforgettable evening of live music under the stars! This year's Summer Music Festival features an incredible lineup of international and local artists across multiple genres. From indie rock to electronic dance music, there's something for everyone. Enjoy food trucks, art installations, and a vibrant atmosphere that celebrates creativity and community. Bring your friends and family for a night filled with amazing performances, dancing, and memories that will last a lifetime. VIP packages include exclusive access to the backstage lounge and meet-and-greet opportunities with headlining artists.",
-    location: "Central Park, New York, NY",
-    date: "July 15, 2025",
-    time: "6:00 PM - 11:00 PM",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=1200&q=80",
-    category: "Music",
-    totalParticipants: 5000,
-    currentParticipants: 3847,
-    organizer: "LiveNation Events",
-    price: "$45 - $120"
-  };
+  
 
-  const participationPercentage = (event.currentParticipants / event.totalParticipants) * 100;
+  const participationPercentage = (event.currParticipants / event.maxParticipants) * 100;
   const navigate = useNavigate()
 
   return (
@@ -157,7 +133,7 @@ const EventDetailPage: React.FC = () => {
                     <div>
                       <p className="text-purple-300 text-sm">Participants</p>
                       <p className="text-white font-bold text-2xl">
-                        {event.currentParticipants.toLocaleString()}
+                        {event.currParticipants.toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -166,7 +142,7 @@ const EventDetailPage: React.FC = () => {
                   <div className="mb-4">
                     <div className="flex justify-between text-sm text-purple-200 mb-2">
                       <span>Capacity</span>
-                      <span>{event.totalParticipants.toLocaleString()} spots</span>
+                      <span>{event.maxParticipants.toLocaleString()} spots</span>
                     </div>
                     <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
                       <div

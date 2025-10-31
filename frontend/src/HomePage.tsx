@@ -1,9 +1,10 @@
-import React, { use, useState, } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, } from 'react';
+import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { Calendar, MapPin, Clock } from 'lucide-react';
+import { axiosInstance } from './axios';
 
 interface Event {
-  id: number;
+  _id: number;
   title: string;
   location: string;
   date: string;
@@ -13,68 +14,111 @@ interface Event {
 }
 
 const EventsPage: React.FC = () => {
-  const events: Event[] = [
-    {
-      id: 1,
-      title: "Summer Music Festival",
-      location: "Central Park, NY",
-      date: "July 15, 2025",
-      time: "6:00 PM",
-      image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80",
-      category: "Music"
-    },
-    {
-      id: 2,
-      title: "Tech Innovation Summit",
-      location: "Silicon Valley Convention Center",
-      date: "August 22, 2025",
-      time: "9:00 AM",
-      image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
-      category: "Technology"
-    },
-    {
-      id: 3,
-      title: "Art & Design Expo",
-      location: "Modern Art Gallery, LA",
-      date: "September 10, 2025",
-      time: "11:00 AM",
-      image: "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=800&q=80",
-      category: "Art"
-    },
-    {
-      id: 4,
-      title: "Food & Wine Festival",
-      location: "Downtown Plaza, Chicago",
-      date: "October 5, 2025",
-      time: "5:00 PM",
-      image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80",
-      category: "Food"
-    },
-    {
-      id: 5,
-      title: "Marathon Championship",
-      location: "City Stadium, Boston",
-      date: "November 12, 2025",
-      time: "7:00 AM",
-      image: "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&q=80",
-      category: "Sports"
-    },
-    {
-      id: 6,
-      title: "Winter Wonderland Concert",
-      location: "Opera House, Seattle",
-      date: "December 20, 2025",
-      time: "7:30 PM",
-      image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80",
-      category: "Music"
-    }
-  ];
+  // const events: Event[] = [
+  //   {
+  //     id: 1,
+  //     title: "Summer Music Festival",
+  //     location: "Central Park, NY",
+  //     date: "July 15, 2025",
+  //     time: "6:00 PM",
+  //     image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80",
+  //     category: "Music"
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Tech Innovation Summit",
+  //     location: "Silicon Valley Convention Center",
+  //     date: "August 22, 2025",
+  //     time: "9:00 AM",
+  //     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
+  //     category: "Technology"
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Art & Design Expo",
+  //     location: "Modern Art Gallery, LA",
+  //     date: "September 10, 2025",
+  //     time: "11:00 AM",
+  //     image: "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=800&q=80",
+  //     category: "Art"
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Food & Wine Festival",
+  //     location: "Downtown Plaza, Chicago",
+  //     date: "October 5, 2025",
+  //     time: "5:00 PM",
+  //     image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80",
+  //     category: "Food"
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Marathon Championship",
+  //     location: "City Stadium, Boston",
+  //     date: "November 12, 2025",
+  //     time: "7:00 AM",
+  //     image: "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&q=80",
+  //     category: "Sports"
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Winter Wonderland Concert",
+  //     location: "Opera House, Seattle",
+  //     date: "December 20, 2025",
+  //     time: "7:30 PM",
+  //     image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80",
+  //     category: "Music"
+  //   }
+  // ];
 
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   const navigate = useNavigate();
-  
 
+  const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    const getEvents = async () => {
+      try {
+        const response = await axiosInstance.get("/events"); 
+        setEvents(response.data);
+      } catch (error) {
+        console.error("❌ Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getEvents();
+  }, []);
+
+ const fetchEventById = async (
+    id: string,
+    navigate: NavigateFunction
+  ): Promise<Event | null> => {
+    try {
+      const response = await axiosInstance.get<Event>(`/events/${id}`);
+      const event = response.data;
+
+      navigate(`/event/details/${id}`, { state: { event } });
+
+      return event;
+    } catch (error) {
+      console.error("❌ Error fetching event:", error);
+      return null;
+    }
+};
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <h2 className="text-xl font-semibold animate-pulse">Loading events...</h2>
+      </div>
+    );
+  }
+  
+  
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-800">
       {/* Animated background elements */}
@@ -105,14 +149,14 @@ const EventsPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {events.map((event) => (
             <div
-              key={event.id}
+              key={event._id}
               className="group relative"
-              onMouseEnter={() => setHoveredId(event.id)}
+              onMouseEnter={() => setHoveredId(event._id)}
               onMouseLeave={() => setHoveredId(null)}
-              onClick={()=>navigate("event/details")}
+              onClick={() => fetchEventById(event._id.toString(), navigate)}
             >
               <div className={`relative bg-white/10 backdrop-blur-lg rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 border border-white/20 ${
-                hoveredId === event.id ? 'transform scale-105 shadow-purple-500/50' : ''
+                hoveredId === event._id ? 'transform scale-105 shadow-purple-500/50' : ''
               }`}>
                 {/* Image Container */}
                 <div className="relative h-56 overflow-hidden">
@@ -120,7 +164,7 @@ const EventsPage: React.FC = () => {
                     src={event.image}
                     alt={event.title}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
-                      hoveredId === event.id ? 'scale-110' : 'scale-100'
+                      hoveredId === event._id ? 'scale-110' : 'scale-100'
                     }`}
                   />
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
@@ -156,7 +200,7 @@ const EventsPage: React.FC = () => {
 
                   {/* Button */}
                   <button className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                    hoveredId === event.id
+                    hoveredId === event._id
                       ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}>
