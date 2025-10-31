@@ -1,16 +1,31 @@
 import express from "express"
 import dotenv from "dotenv"
-// import fileupload from "express-fileupload"
+import path from "path"
+import fileupload from "express-fileupload"
 import { connectDB } from "./db.js"
 import cors from "cors"
 import { createServer } from "http"
 import Event from "./schema.js"
+import cloudinary from "./cloudinary.js"
 
 dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT
+const __dirname = path.resolve()
 const httpServer = createServer(app)
+
+const uploadToCloudinary = async (file) =>{
+    try {
+       const result = await cloudinary.uploader.upload(file.tempFilePath,{
+        resource_type:"auto"
+       }) 
+    return result.secure_url
+    } catch (error) {
+        console.log(error)
+        throw new Error("error uplaoding")
+    }
+}
 
 app.use(cors({
     origin : "http://localhost:5173",
@@ -21,14 +36,14 @@ app.use(cors({
 
 app.use(express.json())
 
-// app.use(fileupload({
-//     useTempFiles:true,
-//     tempFileDir : path.join(__dirname,"tmp"),
-//     createParentPath : true,
-//     limits : {
-//         fileSize : 10*1024*1024
-//     }
-// }))
+app.use(fileupload({
+    useTempFiles:true,
+    tempFileDir : path.join(__dirname,"tmp"),
+    createParentPath : true,
+    limits : {
+        fileSize : 10*1024*1024
+    }
+}))
 
 app.get('/', (req, res) => {
   res.send('Hello, World! 👋');
@@ -36,16 +51,20 @@ app.get('/', (req, res) => {
 
 app.post('/add-event', async (req, res) => {
   try {
+    const imageFile = req.files.imageFile
+    const imageUrl = await uploadToCloudinary(imageFile)
+    const {title,description,category,location,date,time,maxParticipants} = req.body
     console.log(req.body)
     const newEvent = new Event({
-      title: req.body.title,
-      description: req.body.description,
-      category: req.body.category,
-      location: req.body.location,
-      date: req.body.date,
-      time: req.body.time,
-      maxParticipants: req.body.totalParticipants,
+      title: title,
+      description: description,
+      category: category,
+      location: location,
+      date: date,
+      time: time,
+      maxParticipants: maxParticipants,
       currParticipants: 0,
+      imageUrl: imageUrl
     });
 
     await newEvent.save();

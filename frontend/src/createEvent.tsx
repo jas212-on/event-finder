@@ -3,7 +3,7 @@ import { Calendar, MapPin, Clock, Users, Image, Type, FileText, Tag, ArrowLeft, 
 import { useNavigate } from 'react-router';
 import { axiosInstance } from './axios';
 
-interface EventFormData {
+interface Eventdata {
   title: string;
   description: string;
   category: string;
@@ -11,8 +11,6 @@ interface EventFormData {
   date: string;
   time: string;
   totalParticipants: string;
-  price: string;
-  organizer: string;
 }
 
 interface ImageFile {
@@ -21,7 +19,7 @@ interface ImageFile {
 }
 
 const AddEventForm: React.FC = () => {
-  const [formData, setFormData] = useState<EventFormData>({
+  const [data, setdata] = useState<Eventdata>({
     title: '',
     description: '',
     category: '',
@@ -29,8 +27,6 @@ const AddEventForm: React.FC = () => {
     date: '',
     time: '',
     totalParticipants: '',
-    price: '',
-    organizer: ''
   });
 
   const [imageFile, setImageFile] = useState<ImageFile>({
@@ -46,7 +42,7 @@ const AddEventForm: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setdata(prev => ({
       ...prev,
       [name]: value
     }));
@@ -67,9 +63,18 @@ const AddEventForm: React.FC = () => {
   const handleSubmit = async () => {
   
     try {
-      await axiosInstance.post("/add-event" ,{
-        ...formData
-      })
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("location", data.location);
+      formData.append("date", data.date);
+      formData.append("category", data.category);
+      formData.append("description", data.description);
+      formData.append("time", data.time);
+      formData.append("maxParticipants", data.totalParticipants);
+      formData.append("imageFile", imageFile.file as Blob);
+      await axiosInstance.post("/add-event", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
     } catch (error) {
       console.log("Error", error)
     }finally{
@@ -79,7 +84,7 @@ const AddEventForm: React.FC = () => {
     
     setTimeout(() => {
       setIsSubmitted(false);
-      setFormData({
+      setdata({
         title: '',
         description: '',
         category: '',
@@ -87,8 +92,6 @@ const AddEventForm: React.FC = () => {
         date: '',
         time: '',
         totalParticipants: '',
-        price: '',
-        organizer: ''
       });
       // Clear image preview
       if (imageFile.preview) {
@@ -137,7 +140,7 @@ const AddEventForm: React.FC = () => {
                 <input
                   type="text"
                   name="title"
-                  value={formData.title}
+                  value={data.title}
                   onChange={handleChange}
                   placeholder="Enter event title"
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
@@ -153,7 +156,7 @@ const AddEventForm: React.FC = () => {
                   </label>
                   <select
                     name="category"
-                    value={formData.category}
+                    value={data.category}
                     onChange={handleChange}
                     className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                   >
@@ -174,7 +177,7 @@ const AddEventForm: React.FC = () => {
                 </label>
                 <textarea
                   name="description"
-                  value={formData.description}
+                  value={data.description}
                   onChange={handleChange}
                   rows={5}
                   placeholder="Describe your event in detail..."
@@ -192,7 +195,7 @@ const AddEventForm: React.FC = () => {
                   <input
                     type="date"
                     name="date"
-                    value={formData.date}
+                    value={data.date}
                     onChange={handleChange}
                     className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                   />
@@ -206,7 +209,7 @@ const AddEventForm: React.FC = () => {
                   <input
                     type="time"
                     name="time"
-                    value={formData.time}
+                    value={data.time}
                     onChange={handleChange}
                     className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
                   />
@@ -222,7 +225,7 @@ const AddEventForm: React.FC = () => {
                 <input
                   type="text"
                   name="location"
-                  value={formData.location}
+                  value={data.location}
                   onChange={handleChange}
                   placeholder="Event venue or address"
                   className="w-full bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
@@ -239,7 +242,7 @@ const AddEventForm: React.FC = () => {
                   <input
                     type="number"
                     name="totalParticipants"
-                    value={formData.totalParticipants}
+                    value={data.totalParticipants}
                     onChange={handleChange}
                     min="1"
                     placeholder="Maximum capacity"

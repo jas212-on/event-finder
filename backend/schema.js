@@ -10,6 +10,7 @@ const eventSchema = new Schema({
   maxParticipants: { type: Number, required: true },
   category: { type: String, required: true },
   time: { type: String, required: true },
+  imageUrl : { type: String, required: true },
 });
 
 const Event = model("Event", eventSchema);

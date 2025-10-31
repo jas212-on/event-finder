@@ -9,7 +9,7 @@ interface Event {
   location: string;
   date: string;
   time: string;
-  image: string;
+  imageUrl: string;
   category: string;
 }
 
@@ -72,6 +72,8 @@ const EventsPage: React.FC = () => {
   // ];
 
   const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [locations, setLocations] = useState<string[]>([]);
 
   const navigate = useNavigate();
 
@@ -83,6 +85,14 @@ const EventsPage: React.FC = () => {
       try {
         const response = await axiosInstance.get("/events"); 
         setEvents(response.data);
+        const events: Event[] = response.data as Event[];
+        const uniqueLocations: string[] = Array.from(
+        new Set(events.map((event) => event.location))
+      );
+
+      setLocations(uniqueLocations);
+
+
       } catch (error) {
         console.error("❌ Error fetching events:", error);
       } finally {
@@ -92,6 +102,10 @@ const EventsPage: React.FC = () => {
 
     getEvents();
   }, []);
+
+  const filteredEvents = selectedLocation === 'all' 
+    ? events 
+    : events.filter(event => event.location === selectedLocation);
 
  const fetchEventById = async (
     id: string,
@@ -145,9 +159,54 @@ const EventsPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Location Filter Section */}
+        <div className="max-w-7xl mx-auto mb-8">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+           
+            
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => setSelectedLocation('all')}
+                className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 ${
+                  selectedLocation === 'all'
+                    ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
+                    : 'bg-white/20 text-purple-200 hover:bg-white/30 hover:text-white'
+                }`}
+              >
+                All Locations ({events.length})
+              </button>
+              
+              {locations.map((location) => {
+                const count = events.filter(e => e.location === location).length;
+                return (
+                  <button
+                    key={location}
+                    onClick={() => setSelectedLocation(location)}
+                    className={`px-5 py-2 rounded-lg font-medium transition-all duration-300 ${
+                      selectedLocation === location
+                        ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/50'
+                        : 'bg-white/20 text-purple-200 hover:bg-white/30 hover:text-white'
+                    }`}
+                  >
+                    {location} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div className="max-w-7xl mx-auto mb-6">
+          <p className="text-purple-200 text-center">
+            Showing {filteredEvents.length} {filteredEvents.length === 1 ? 'event' : 'events'}
+            {selectedLocation !== 'all' && ` in ${selectedLocation}`}
+          </p>
+        </div>
+
         {/* Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {events.map((event) => (
+          {filteredEvents.map((event) => (
             <div
               key={event._id}
               className="group relative"
@@ -161,7 +220,7 @@ const EventsPage: React.FC = () => {
                 {/* Image Container */}
                 <div className="relative h-56 overflow-hidden">
                   <img
-                    src={event.image}
+                    src={event.imageUrl}
                     alt={event.title}
                     className={`w-full h-full object-cover transition-transform duration-700 ${
                       hoveredId === event._id ? 'scale-110' : 'scale-100'
