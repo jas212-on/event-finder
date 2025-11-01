@@ -5,15 +5,21 @@ import { useLocation } from "react-router-dom";
 
 
 const EventDetailPage: React.FC = () => {
-  const [isLiked, setIsLiked] = useState(false);       
+  const [isLiked, setIsLiked] = useState(false); 
+  const [increment,setIncrement] = useState(0);  
+  
   const location = useLocation();      
-  const event = location.state?.event;
-  
-  // Sample event data
-  
+  const event = location.state?.event; 
+  const [participationPercentage,setParticipationPercentage] = useState((event.currParticipants / event.maxParticipants) * 100); 
 
-  const participationPercentage = (event.currParticipants / event.maxParticipants) * 100;
   const navigate = useNavigate()
+
+  const handleRegister = ()=>{
+    if(participationPercentage<100){
+      setIncrement((prev) => prev + 1);
+      setParticipationPercentage(((event.currParticipants+increment+1) / event.maxParticipants) * 100);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-indigo-900 via-purple-900 to-pink-800">
@@ -38,7 +44,7 @@ const EventDetailPage: React.FC = () => {
             {/* Hero Image Section */}
             <div className="relative h-96 rounded-3xl overflow-hidden shadow-2xl mb-8">
               <img
-                src={event.image}
+                src={event.imageUrl}
                 alt={event.title}
                 className="w-full h-full object-cover"
               />
@@ -133,7 +139,7 @@ const EventDetailPage: React.FC = () => {
                     <div>
                       <p className="text-purple-300 text-sm">Participants</p>
                       <p className="text-white font-bold text-2xl">
-                        {event.currParticipants.toLocaleString()}
+                        {(event.currParticipants + increment).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -163,7 +169,7 @@ const EventDetailPage: React.FC = () => {
                   </div>
 
                   {/* Register Button */}
-                  <button className="w-full bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 transform hover:scale-105">
+                  <button onClick={handleRegister} className="w-full bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 transform hover:scale-105">
                     Register Now
                   </button>
 

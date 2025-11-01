@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, Users, Image, Type, FileText, Tag, ArrowLeft, Check } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Image, Type, FileText, Tag, ArrowLeft, Loader } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { axiosInstance } from './axios';
+import { axiosInstance } from '../lib/axios';
+import toast from 'react-hot-toast';
 
 interface Eventdata {
   title: string;
@@ -63,6 +64,7 @@ const AddEventForm: React.FC = () => {
   const handleSubmit = async () => {
   
     try {
+      setIsSubmitted(true)
       const formData = new FormData();
       formData.append("title", data.title);
       formData.append("location", data.location);
@@ -75,15 +77,7 @@ const AddEventForm: React.FC = () => {
       await axiosInstance.post("/add-event", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-    } catch (error) {
-      console.log("Error", error)
-    }finally{
-      navigate("/")
-      setIsSubmitted(true);
-    }
-    
-    setTimeout(() => {
-      setIsSubmitted(false);
+      toast.success("Event added successfully");
       setdata({
         title: '',
         description: '',
@@ -98,7 +92,13 @@ const AddEventForm: React.FC = () => {
         URL.revokeObjectURL(imageFile.preview);
       }
       setImageFile({ file: null, preview: '' });
-    }, 2000);
+      navigate("/")
+    } catch (error) {
+      toast.error("Fill in all details");
+      console.log("Error", error)
+    } finally{
+      setIsSubmitted(false)
+    }
   };
 
   return (
@@ -301,16 +301,12 @@ const AddEventForm: React.FC = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitted}
-                  className={`w-full py-5 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 ${
-                    isSubmitted
-                      ? 'bg-green-500 text-white shadow-green-500/50'
-                      : 'bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-purple-500/50 hover:shadow-purple-500/70'
-                  }`}
+                  className="w-full py-5 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-purple-500/50 hover:shadow-purple-500/70"
                 >
                   {isSubmitted ? (
                     <span className="flex items-center justify-center gap-2">
-                      <Check className="w-6 h-6" />
-                      Event Created Successfully!
+                      <Loader className="animate-spin w-6 h-6" />
+                      Uploading Event
                     </span>
                   ) : (
                     'Create Event'

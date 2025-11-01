@@ -2,11 +2,11 @@ import express from "express"
 import dotenv from "dotenv"
 import path from "path"
 import fileupload from "express-fileupload"
-import { connectDB } from "./db.js"
+import { connectDB } from "./lib/db.js"
 import cors from "cors"
 import { createServer } from "http"
-import Event from "./schema.js"
-import cloudinary from "./cloudinary.js"
+import Event from "./models/eventModel.js"
+import cloudinary from "./lib/cloudinary.js"
 
 dotenv.config()
 
@@ -31,8 +31,6 @@ app.use(cors({
     origin : "http://localhost:5173",
     credentials: true
 }))
-
-
 
 app.use(express.json())
 
@@ -94,9 +92,6 @@ app.get('/events/:id', async (req, res) => {
     res.status(500).send("❌ Error fetching event: " + err.message);
   }
 });
-
-
-
 
 httpServer.listen(PORT,()=>{
     console.log("Server starting at port "+PORT )

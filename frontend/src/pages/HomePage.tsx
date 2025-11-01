@@ -1,7 +1,8 @@
 import React, { useEffect, useState, } from 'react';
 import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { Calendar, MapPin, Clock } from 'lucide-react';
-import { axiosInstance } from './axios';
+import { axiosInstance } from '../lib/axios';
+import toast from 'react-hot-toast';
 
 interface Event {
   _id: number;
@@ -14,62 +15,6 @@ interface Event {
 }
 
 const EventsPage: React.FC = () => {
-  // const events: Event[] = [
-  //   {
-  //     id: 1,
-  //     title: "Summer Music Festival",
-  //     location: "Central Park, NY",
-  //     date: "July 15, 2025",
-  //     time: "6:00 PM",
-  //     image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=800&q=80",
-  //     category: "Music"
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Tech Innovation Summit",
-  //     location: "Silicon Valley Convention Center",
-  //     date: "August 22, 2025",
-  //     time: "9:00 AM",
-  //     image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80",
-  //     category: "Technology"
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Art & Design Expo",
-  //     location: "Modern Art Gallery, LA",
-  //     date: "September 10, 2025",
-  //     time: "11:00 AM",
-  //     image: "https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=800&q=80",
-  //     category: "Art"
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Food & Wine Festival",
-  //     location: "Downtown Plaza, Chicago",
-  //     date: "October 5, 2025",
-  //     time: "5:00 PM",
-  //     image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80",
-  //     category: "Food"
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Marathon Championship",
-  //     location: "City Stadium, Boston",
-  //     date: "November 12, 2025",
-  //     time: "7:00 AM",
-  //     image: "https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?w=800&q=80",
-  //     category: "Sports"
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Winter Wonderland Concert",
-  //     location: "Opera House, Seattle",
-  //     date: "December 20, 2025",
-  //     time: "7:30 PM",
-  //     image: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80",
-  //     category: "Music"
-  //   }
-  // ];
 
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -89,11 +34,9 @@ const EventsPage: React.FC = () => {
         const uniqueLocations: string[] = Array.from(
         new Set(events.map((event) => event.location))
       );
-
       setLocations(uniqueLocations);
-
-
       } catch (error) {
+        toast.error("Error fetching events");
         console.error("❌ Error fetching events:", error);
       } finally {
         setLoading(false);
@@ -119,6 +62,7 @@ const EventsPage: React.FC = () => {
 
       return event;
     } catch (error) {
+      toast.error("Cannot find event");
       console.error("❌ Error fetching event:", error);
       return null;
     }
@@ -144,20 +88,23 @@ const EventsPage: React.FC = () => {
 
       <div className="relative z-10 container mx-auto px-4 py-16">
         {/* Header */}
-        <div className="text-center mb-16 relative">
-          <h1 className="text-6xl font-bold text-white mb-4 tracking-tight">
-            Upcoming Events
-          </h1>
-          <p className="text-xl text-purple-200 max-w-2xl mx-auto">
-            Discover amazing experiences and create unforgettable memories
-          </p>
-          
-          {/* Create Event Button */}
-          <button onClick={()=>navigate("create")} className="absolute top-0 right-10 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 flex items-center gap-2 group">
-            <span className="text-2xl group-hover:rotate-90 transition-transform duration-300">+</span>
-            Create Event
-          </button>
-        </div>
+      <div className="text-center mb-16 relative px-4">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+          Upcoming Events
+        </h1>
+        <p className="text-base sm:text-lg lg:text-xl text-purple-200 max-w-2xl mx-auto px-4">
+          Discover amazing experiences and create unforgettable memories
+        </p>
+        
+        {/* Create Event Button */}
+        <button 
+          onClick={() => navigate("create")} 
+          className="mt-6 sm:mt-0 sm:absolute sm:top-0 sm:right-4 lg:right-10 bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-semibold shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70 transition-all duration-300 flex items-center gap-2 group"
+        >
+          <span className="text-xl sm:text-2xl group-hover:rotate-90 transition-transform duration-300">+</span>
+          Create Event
+        </button>
+      </div>
 
         {/* Location Filter Section */}
         <div className="max-w-7xl mx-auto mb-8">

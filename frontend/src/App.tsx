@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import EventsPage from "./HomePage";
-import EventDetailPage from "./eventDetail";
-import AddEventForm from "./createEvent";
-import ScrollToTop from "./scrollToTop";
+import EventsPage from "./pages/HomePage";
+import EventDetailPage from "./pages/eventDetail";
+import AddEventForm from "./pages/createEvent";
+import ScrollToTop from "./utils/scrollToTop";
+import { Toaster } from 'react-hot-toast';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/event/details/:id" element={<EventDetailPage />} />
         <Route path="/create" element={<AddEventForm/>}/>
       </Routes>
+      <Toaster/>
     </Router>
   );
 }
