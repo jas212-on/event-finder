@@ -28,7 +28,7 @@ const uploadToCloudinary = async (file) =>{
 }
 
 app.use(cors({
-    origin : "http://localhost:5173",
+    origin : ["http://localhost:5173","https://mini-event-finder-mfwh.onrender.com/"],
     credentials: true
 }))
 
