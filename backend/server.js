@@ -11,12 +11,12 @@ import cloudinary from "./lib/cloudinary.js"
 dotenv.config()
 
 const app = express()
-const PORT = process.env.PORT
+const PORT = process.env.PORT 
 const __dirname = path.resolve()
 const httpServer = createServer(app)
 
 app.use(cors({
-    origin : ["http://localhost:5173","https://mini-event-finder-mfwh.onrender.com/"],
+    origin : ["http://localhost:5173","https://mini-event-finder-mfwh.onrender.com"],
 }))
 
 const uploadToCloudinary = async (file) =>{
