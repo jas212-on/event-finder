@@ -15,6 +15,10 @@ const PORT = process.env.PORT
 const __dirname = path.resolve()
 const httpServer = createServer(app)
 
+app.use(cors({
+    origin : ["http://localhost:5173","https://mini-event-finder-mfwh.onrender.com/"],
+}))
+
 const uploadToCloudinary = async (file) =>{
     try {
        const result = await cloudinary.uploader.upload(file.tempFilePath,{
@@ -27,10 +31,7 @@ const uploadToCloudinary = async (file) =>{
     }
 }
 
-app.use(cors({
-    origin : ["http://localhost:5173","https://mini-event-finder-mfwh.onrender.com/"],
-    credentials: true
-}))
+
 
 app.use(express.json())
 
